@@ -18,7 +18,57 @@ function savePdfFile(callback) {
   });
 }
 
+function pdfToHtml(callback) {
+  exec("pdftohtml " + constants.RAW_PDF_NAME
+  + " temp && rm temp.html && rm temp_ind.html && mv temps.html "
+  + constants.RAW_HTML_NAME
+  + " && rm " + constants.RAW_PDF_NAME, callback);
+}
+
+function getHtmlContent(callback) {
+  fs.readFile(constants.RAW_HTML_NAME, function(err, data) {
+    if(err) {
+      throw err;
+    }
+
+    callback(data.toString('utf8')); //data is a buffer, turned that to utf8
+  });
+}
+
+function htmlToJSON(callback) {
+  getHtmlContent(function(htmlRawData) {
+    var textRawData = htmlRawData.replace(/<\/?[^>]+(>|$)/gm, ''); // removes html tags
+    var datesRegex = /\s*\d{2}\/\s*\d{2}\/\s*\d{4}/g;
+    var dates = textRawData.match(datesRegex).map(function(data) { return data.replace('\n', '')});
+    var days = ['Pazartesi', 'Sali', 'Çaramba', 'Perembe', 'Cuma', 'Cumartesi', 'Pazar'];
+    var rawDataArray = textRawData.split('\n');
+    var dayFiltered = rawDataArray.filter(function(data) { return !days.includes(data); }); //days are gone
+
+    var yemekList = {};
+
+    dates.forEach(function(date) {
+      var oneYemekList = {};
+      yemekList[date] = [];
+      oneYemekList[constants.LUNCH_IDENTIFIER] = [];
+      oneYemekList[constants.DINNER_IDENTIFIER] = [];
+      var dateIndex = dayFiltered.indexOf(date);
+      oneYemekList[constants.LUNCH_IDENTIFIER].push(dayFiltered[dateIndex - 2]);
+      oneYemekList[constants.DINNER_IDENTIFIER].push(dayFiltered[dateIndex - 1]);
+
+      for(var i = 0; i < 7; i++) {
+        oneYemekList[constants.LUNCH_IDENTIFIER].push(dayFiltered[dateIndex + 1 + i]);
+        oneYemekList[constants.DINNER_IDENTIFIER].push(dayFiltered[dateIndex + 2 + i]);
+      }
+
+      yemekList[date].push(oneYemekList);
+    });
+    callback(JSON.stringify(yemekList));
+
+  });
+}
+
 savePdfFile(function() {
-  exec("pdftohtml " + constants.RAW_PDF_NAME + " temp && rm temp.html && rm temp_ind.html && mv temps.html " + constants.RAW_HTML_NAME);
-  exec("rm " + constants.RAW_PDF_NAME); // remove the unneccessary pdf
-})
+  pdfToHtml(function () {
+    htmlToJSON(console.log);
+  });
+});
