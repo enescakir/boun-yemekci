@@ -55,13 +55,14 @@ function htmlToJSON(callback) {
       oneYemekList[constants.LUNCH_IDENTIFIER].push(dayFiltered[dateIndex - 2]);
       oneYemekList[constants.DINNER_IDENTIFIER].push(dayFiltered[dateIndex - 1]);
 
-      for(var i = 0; i < 7; i++) {
+      for(var i = 0; i < 7; i += 2) {
         oneYemekList[constants.LUNCH_IDENTIFIER].push(dayFiltered[dateIndex + 1 + i]);
         oneYemekList[constants.DINNER_IDENTIFIER].push(dayFiltered[dateIndex + 2 + i]);
       }
 
       yemekList[date].push(oneYemekList);
     });
+
     callback(JSON.stringify(yemekList));
 
   });
