@@ -3,47 +3,52 @@ var fs = require('fs');
 var exec = require('child_process').exec;
 var constants = require('../constants/fileConstants');
 
-function savePdfFile(callback) {
-  http.get(constants.PDF_URL, function(res) {
-    var chunks = [];
-    res.on('data', function(chunk) {
-      chunks.push(chunk); // saves got chunks
-    });
+function savePdfFile() {
+  return new Promise(function(resolve, reject) {
+    http.get(constants.PDF_URL, function(res) {
+      var chunks = [];
+      res.on('data', function(chunk) {
+        chunks.push(chunk); // saves got chunks
+      });
 
-    res.on('end', function() {
-      chunks = Buffer.concat(chunks);
-      fs.writeFileSync(constants.RAW_PDF_NAME, chunks, 'binary');
-      callback(); // runs the callback function
+      res.on('end', function() {
+        chunks = Buffer.concat(chunks);
+        fs.writeFileSync(constants.RAW_PDF_NAME, chunks, 'binary');
+        resolve(chunks);
+      });
     });
   });
 }
 
 function pdfToHtml(callback) {
-  exec("pdftohtml " + constants.RAW_PDF_NAME
-  + " temp && rm temp.html && rm temp_ind.html && mv temps.html "
-  + constants.RAW_HTML_NAME
-  + " && rm " + constants.RAW_PDF_NAME, callback);
+  return new Promise(function(resolve, reject) {
+    exec("pdftohtml -enc UTF-8 " + constants.RAW_PDF_NAME
+    + " temp && rm temp.html && rm temp_ind.html && mv temps.html "
+    + constants.RAW_HTML_NAME
+    + " && rm " + constants.RAW_PDF_NAME, resolve);
+  });
 }
 
-function getHtmlContent(callback) {
-  fs.readFile(constants.RAW_HTML_NAME, function(err, data) {
-    if(err) {
-      throw err;
-    }
+function getHtmlContent() {
+  return new Promise(function(resolve, reject) {
+    fs.readFile(constants.RAW_HTML_NAME, function(err, data) {
+      if(err) {
+        reject(err);
+      }
 
-    callback(data.toString('utf8')); //data is a buffer, turned that to utf8
+      resolve(data.toString('utf8')); //data is a buffer, turned that to utf8
+    });
   });
 }
 
 function htmlToJSON(callback) {
-  getHtmlContent(function(htmlRawData) {
+  getHtmlContent().then(function(htmlRawData) {
     var textRawData = htmlRawData.replace(/<\/?[^>]+(>|$)/gm, ''); // removes html tags
     var datesRegex = /\s*\d{2}\/\s*\d{2}\/\s*\d{4}/g;
     var dates = textRawData.match(datesRegex).map(function(data) { return data.replace('\n', '')});
     var days = ['Pazartesi', 'Sali', 'Çaramba', 'Perembe', 'Cuma', 'Cumartesi', 'Pazar'];
     var rawDataArray = textRawData.split('\n');
     var dayFiltered = rawDataArray.filter(function(data) { return !days.includes(data); }); //days are gone
-
     var yemekList = {};
 
     dates.forEach(function(date) {
@@ -68,8 +73,12 @@ function htmlToJSON(callback) {
   });
 }
 
-savePdfFile(function() {
-  pdfToHtml(function () {
-    htmlToJSON(console.log);
-  });
-});
+
+module.exports = {
+  getJSONMonthlyYemekList: function(callback) {
+    savePdfFile()
+    .then(savePdfFile)
+    .then(pdfToHtml)
+    .then(htmlToJSON(callback));
+  }
+}
