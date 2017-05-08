@@ -46,14 +46,14 @@ function htmlToJSON(callback) {
     var textRawData = htmlRawData.replace(/<\/?[^>]+(>|$)/gm, ''); // removes html tags
     var datesRegex = /\s*\d{2}\/\s*\d{2}\/\s*\d{4}/g;
     var dates = textRawData.match(datesRegex).map(function(data) { return data.replace('\n', '')});
-    var days = ['Pazartesi', 'Sali', 'Çaramba', 'Perembe', 'Cuma', 'Cumartesi', 'Pazar'];
+    var days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
     var rawDataArray = textRawData.split('\n');
     var dayFiltered = rawDataArray.filter(function(data) { return !days.includes(data); }); //days are gone
     var yemekList = {};
 
     dates.forEach(function(date) {
       var oneYemekList = {};
-      yemekList[date] = [];
+      yemekList[date] = {};
       oneYemekList[constants.LUNCH_IDENTIFIER] = [];
       oneYemekList[constants.DINNER_IDENTIFIER] = [];
       var dateIndex = dayFiltered.indexOf(date);
@@ -65,7 +65,7 @@ function htmlToJSON(callback) {
         oneYemekList[constants.DINNER_IDENTIFIER].push(dayFiltered[dateIndex + 2 + i]);
       }
 
-      yemekList[date].push(oneYemekList);
+      yemekList[date] = oneYemekList;
     });
 
     callback(JSON.stringify(yemekList));
