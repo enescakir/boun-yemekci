@@ -25,7 +25,7 @@ function pdfToHtml(callback) {
     exec("pdftohtml -enc UTF-8 " + constants.RAW_PDF_NAME
     + " temp && rm temp.html && rm temp_ind.html && mv temps.html "
     + constants.RAW_HTML_NAME
-    + " && rm " + constants.RAW_PDF_NAME, resolve);
+    + " && rm " + constants.RAW_PDF_NAME, callback);
   });
 }
 
@@ -64,8 +64,16 @@ function htmlToJSON(callback) {
         oneYemekList[constants.LUNCH_IDENTIFIER].push(dayFiltered[dateIndex + 1 + i]);
         oneYemekList[constants.DINNER_IDENTIFIER].push(dayFiltered[dateIndex + 2 + i]);
       }
+      var isOneYemekListForLunchCorrect = oneYemekList[constants.LUNCH_IDENTIFIER].reduce(function(acc, val) {
+        return acc && !datesRegex.test(val);
+      }, true);
+      var isOneYemekListForDinnerCorrect = oneYemekList[constants.DINNER_IDENTIFIER].reduce(function(acc, val) {
+        return acc && !datesRegex.test(val);
+      }, true);
 
-      yemekList[date] = oneYemekList;
+      var isOneYemekListCorrect = isOneYemekListForLunchCorrect && isOneYemekListForDinnerCorrect;
+      if(!isOneYemekListCorrect) console.log(date + " hatalı");
+      if(isOneYemekListCorrect) yemekList[date] = oneYemekList;
     });
 
     callback(JSON.stringify(yemekList));
@@ -73,11 +81,9 @@ function htmlToJSON(callback) {
   });
 }
 
-
 module.exports = {
   getJSONMonthlyYemekList: function(callback) {
     savePdfFile()
-    .then(savePdfFile)
     .then(pdfToHtml)
     .then(htmlToJSON(callback));
   }
