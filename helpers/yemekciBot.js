@@ -18,6 +18,10 @@ var twitter = new Twitter({
   access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
 });
 
+// twitter.post('statuses/update', { status: message }, function(err, data, response) {
+//   // console.log(data)
+// })
+
 var channel = process.env.BOT_CHANNEL;
 
 function getYemek(date, onSuccess, onError) {
@@ -25,7 +29,6 @@ function getYemek(date, onSuccess, onError) {
   var mm = date.getMonth() + 1; // getMonth() is zero-based
   var yyyy = date.getFullYear();
   var key = [(dd>9 ? '' : '0') + dd, (mm>9 ? '' : '0') + mm, yyyy].join('/');
-
   client.get(key, function(err, yemekJson) {
     if(!yemekJson) {
       onError();
@@ -49,20 +52,6 @@ function getDinner(date, onSuccess, onError) {
 }
 
 function sendLunchToChannel(date, channel, onSuccess, onError) {
-  // var dd = date.getDate();
-  // var mm = date.getMonth() + 1; // getMonth() is zero-based
-  // var yyyy = date.getFullYear();
-  // var key = [(dd>9 ? '' : '0') + dd, (mm>9 ? '' : '0') + mm, yyyy].join('/');
-  //
-  // client.get(key, function(err, yemekJson) {
-  //   yemekObject = JSON.parse(yemekJson)
-  //
-  //   // twitter.post('statuses/update', { status: message }, function(err, data, response) {
-  //   //   // console.log(data)
-  //   // })
-  //
-  // });
-
   getLunch(date, function onSuccess(data) {
     var meals = data;
     var message = "*Bugünkü öğle yemeği:*\n"
@@ -75,23 +64,9 @@ function sendLunchToChannel(date, channel, onSuccess, onError) {
 }
 
 function sendDinnerToChannel(date, channel, successCallback, errorCallback) {
-  // var dd = date.getDate();
-  // var mm = date.getMonth() + 1; // getMonth() is zero-based
-  // var yyyy = date.getFullYear();
-  // var key = [(dd>9 ? '' : '0') + dd, (mm>9 ? '' : '0') + mm, yyyy].join('/');
-  // client.get(key, function(err, yemekJson) {
-  //   yemekObject = JSON.parse(yemekJson)
-  //   var meals = yemekObject[constants.DINNER_IDENTIFIER]
-  //   var message = "*Bugünkü akşam yemeği:*\n"
-  //   for (var i = 0; i < meals.length; i++) {
-  //     message += meals[i] + "\n"
-  //   }
-  //   message += "*Afiyet olsun!* :meat_on_bone:"
-  //   bot.postMessageToChannel(channel, message).then(successCallback).fail(errorCallback);
-  // });
   getDinner(date, function onSuccess(data) {
     var meals = data;
-    var message = "*Bugünkü aksam yemeği:*\n"
+    var message = "*Bugünkü akşam yemeği:*\n"
     for (var i = 0; i < meals.length; i++) {
       message += meals[i] + "\n"
     }
@@ -108,19 +83,21 @@ function sendLunchToUser(date, user, onSuccess, onError) {
       message += meals[i] + "\n"
     }
     message += "*Afiyet olsun!* :meat_on_bone:"
-    bot.postTo(user, message).then(onSuccess).catch(onError);
+    bot.postMessage(user, message).then(onSuccess).catch(onError);
+    // bot.postTo(user, message).then(onSuccess).catch(onError);
   });
 }
 
 function sendDinnerToUser(date, user, onSuccess, onError) {
   getDinner(date, function onSuccess(data) {
     var meals = data;
-    var message = "*Bugünkü aksam yemeği:*\n"
+    var message = "*Bugünkü akşam yemeği:*\n"
     for (var i = 0; i < meals.length; i++) {
       message += meals[i] + "\n"
     }
     message += "*Afiyet olsun!* :meat_on_bone:"
-    bot.postTo(user, message).then(onSuccess).catch(onError);
+    bot.postMessage(user, message).then(onSuccess).catch(onError);
+    // bot.postTo(user, message).then(onSuccess).catch(onError);
   });
 }
 
@@ -141,21 +118,9 @@ bot.on('message', function(message) {
         }, console.log);
       }
       if(text.toLowerCase().match("ogle|öğle")){
-        sendLunch(new Date())
         //bot.postMessage(channel, "öğle mi?")
       }
     }
-    // // define channel, where bot exist. You can adjust it there https://my.slack.com/services
-    // bot.postMessageToChannel('general', 'meow!', params);
-    //
-    // // define existing username instead of 'user_name'
-    //
-    // // If you add a 'slackbot' property,
-    // // you will post to another user's slackbot channel instead of a direct message
-    // bot.postMessageToUser('user_name', 'meow!', { 'slackbot': true, icon_emoji: ':cat:' });
-    //
-    // // define private group instead of 'private_group', where bot exist
-    // bot.postMessageToGroup('private_group', 'meow!', params);
 });
 
 
