@@ -10,10 +10,13 @@
     "start": "node index.js"
   },
   "dependencies": {
+    "dotenv": "^4.0.0",
     "ejs": "2.5.6",
     "express": "4.15.2",
+    "node-schedule": "^1.2.1",
+    "redis": "2.7.1",
     "slackbots": "1.0.2",
-    "redis": "2.7.1"
+    "twit": "^2.2.5"
   },
   "repository": {
     "type": "git",
@@ -25,7 +28,5 @@
     "express"
   ],
   "license": "MIT",
-  "devDependencies": {
-    "node-schedule": "^1.2.1"
-  }
+  "devDependencies": {}
 }

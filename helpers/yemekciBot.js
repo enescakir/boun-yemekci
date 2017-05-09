@@ -2,14 +2,23 @@ var SlackBot = require('slackbots');
 var processor = require('../helpers/processor');
 var constants = require('../constants/fileConstants');
 var redis = require('redis');
+var dotenv = require('dotenv').config()
 var client = redis.createClient();
+var Twitter = require('twit');
 
 var bot = new SlackBot({
-    token: "",
-    name: 'yemekci'
+    token: process.env.BOT_TOKEN,
+    name: process.env.BOT_NAME,
 });
 
-var channel = "yemekci-deneme";
+var twitter = new Twitter({
+  consumer_key: process.env.TWITTER_CONSUMER_KEY,
+  consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+  access_token: process.env.TWITTER_ACCESS_TOKEN,
+  access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
+});
+
+var channel = process.env.BOT_CHANNEL;
 
 function getLunch(date) {
   return new Promise(function() {
@@ -39,7 +48,11 @@ function sendLunch(date, onSuccess, onError) {
       message += meals[i] + "\n"
     }
     message += "*Afiyet olsun!* :meat_on_bone:"
-    bot.postMessageToChannel(channel, message).then(onSuccess).fail(onError);
+    bot.postMessageToChannel(channel, message).then(onSuccess).catch(onError);
+    // twitter.post('statuses/update', { status: message }, function(err, data, response) {
+    //   // console.log(data)
+    // })
+
   });
 }
 
@@ -95,8 +108,3 @@ module.exports = {
   sendLunch: function(date, onSuccess, onError) { sendLunch(date, onSuccess, onError) },
   sendDinner: function(date, onSuccess, onError) { sendDinner(date, onSuccess, onError) }
 }
-
-
-// bot.postMessageToChannel('yemekci-deneme', 'Ne vereyim abime!').always(function(data) {
-//     console.log(data)
-// });
