@@ -10,6 +10,7 @@ var bot = new SlackBot({
     token: process.env.BOT_TOKEN,
     name: process.env.BOT_NAME,
 });
+var channel = process.env.BOT_CHANNEL;
 
 var twitter = new Twitter({
   consumer_key: process.env.TWITTER_CONSUMER_KEY,
@@ -17,12 +18,6 @@ var twitter = new Twitter({
   access_token: process.env.TWITTER_ACCESS_TOKEN,
   access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
 });
-
-// twitter.post('statuses/update', { status: message }, function(err, data, response) {
-//   // console.log(data)
-// })
-
-var channel = process.env.BOT_CHANNEL;
 
 function getYemek(date, onSuccess, onError) {
   var dd = date.getDate();
@@ -39,6 +34,7 @@ function getYemek(date, onSuccess, onError) {
     }
   });
 }
+
 function getLunch(date, onSuccess, onError) {
   getYemek(date, function success(yemekObject) {
     onSuccess(yemekObject[constants.LUNCH_IDENTIFIER]);
@@ -66,6 +62,21 @@ function sendLunchToChannel(date, channel, onSuccess, onError) {
   });
 }
 
+function sendLunchToTwitter(date, onSuccess, onError) {
+  getLunch(date, function onSuccess(meals) {
+    var message = "Bugünkü öğle yemeği:\n";
+    for (var i = 0; i < meals.length; i++) {
+      message += meals[i] + "\n";
+    }
+    message += "Afiyet olsun! \uF356"
+
+    twitter.post('statuses/update', { status: message }, function(err, data, response) {
+      console.log(err);
+    })
+  });
+}
+
+
 function sendDinnerToChannel(date, channel, successCallback, errorCallback) {
   getDinner(date, function onSuccess(data) {
     var meals = data;
@@ -81,6 +92,20 @@ function sendDinnerToChannel(date, channel, successCallback, errorCallback) {
         errorCallback(data.message);
       }
     });
+  });
+}
+
+function sendDinnerToTwitter(date, onSuccess, onError) {
+  getDinner(date, function onSuccess(meals) {
+    var message = "Bugünkü akşam yemeği:\n";
+    for (var i = 0; i < meals.length; i++) {
+      message += meals[i] + "\n";
+    }
+    message += "Afiyet olsun! \uF356"
+
+    twitter.post('statuses/update', { status: message }, function(err, data, response) {
+      console.log(err);
+    })
   });
 }
 
