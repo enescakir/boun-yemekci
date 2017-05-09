@@ -6,25 +6,13 @@ var constants = require('./constants/fileConstants');
 var redis = require('redis');
 var schedule = require('node-schedule');
 
-// schedule.scheduleJob('0 0 11 1/1 * ? *', function(){
-//   var today = new Date();
-//   bot.sendLunch(today);
-//   bot.sendLunchToTwitter(today);
-// });
-//
-// schedule.scheduleJob('0 30 16 1/1 * ? *', function(){
-//   var today = new Date();
-//   bot.sendDinner(today);
-//   bot.sendDinnerToTwitter(today);
-// });
-
-schedule.scheduleJob('*/10 * * * * *', function(){
+schedule.scheduleJob('0 0 11 1/1 * ? *', function(){
   var today = new Date();
   bot.sendLunch(today);
   bot.sendLunchToTwitter(today);
 });
 
-schedule.scheduleJob('*/15 * * * * *', function(){
+schedule.scheduleJob('0 30 16 1/1 * ? *', function(){
   var today = new Date();
   bot.sendDinner(today);
   bot.sendDinnerToTwitter(today);
