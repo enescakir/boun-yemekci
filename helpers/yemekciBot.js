@@ -75,7 +75,7 @@ function sendDinnerToChannel(date, channel, successCallback, errorCallback) {
   });
 }
 
-function sendLunchToUser(date, user, onSuccess, onError) {
+function sendLunchToUser(date, userChannel, onSuccess, onError) {
   getLunch(date, function onSuccess(data) {
     var meals = data;
     var message = "*Bugünkü öğle yemeği:*\n"
@@ -83,12 +83,11 @@ function sendLunchToUser(date, user, onSuccess, onError) {
       message += meals[i] + "\n"
     }
     message += "*Afiyet olsun!* :meat_on_bone:"
-    bot.postMessage(user, message).then(onSuccess).catch(onError);
-    // bot.postTo(user, message).then(onSuccess).catch(onError);
+    bot.postMessage(userChannel, message);
   });
 }
 
-function sendDinnerToUser(date, user, onSuccess, onError) {
+function sendDinnerToUser(date, userChannel, onSuccess, onError) {
   getDinner(date, function onSuccess(data) {
     var meals = data;
     var message = "*Bugünkü akşam yemeği:*\n"
@@ -96,8 +95,7 @@ function sendDinnerToUser(date, user, onSuccess, onError) {
       message += meals[i] + "\n"
     }
     message += "*Afiyet olsun!* :meat_on_bone:"
-    bot.postMessage(user, message).then(onSuccess).catch(onError);
-    // bot.postTo(user, message).then(onSuccess).catch(onError);
+    bot.postMessage(userChannel, message);
   });
 }
 
@@ -108,17 +106,17 @@ bot.on('message', function(message) {
     var text = message.text
     var channel = message.channel
     var userId = message.user;
+    console.log("=====");
+    console.log(message);
 
     if(type == "message" && subtype != "bot_message"){
       if(text.toLowerCase().match("aksam|akşam")){
-        //bot.postMessage(channel, "akşam mı?")
         console.log(message);
-        sendDinnerToUser(new Date(), userId, function() {
+        sendDinnerToUser(new Date(), channel, function() {
           console.log("deneme");
         }, console.log);
       }
       if(text.toLowerCase().match("ogle|öğle")){
-        //bot.postMessage(channel, "öğle mi?")
       }
     }
 });
