@@ -52,8 +52,8 @@ app.get('/send/dinner', function(request, res) {
   var today = new Date();
   bot.sendDinner(today, function success() {
     res.send("Today's dinner is sent!");
-  }, function() {
-    res.send("couldn't send!");
+  }, function(msg) {
+    res.send(msg);
   });
 
 });

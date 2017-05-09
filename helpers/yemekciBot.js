@@ -52,47 +52,62 @@ function getDinner(date, onSuccess, onError) {
 }
 
 function sendLunchToChannel(date, channel, onSuccess, onError) {
-  getLunch(date, function onSuccess(data) {
+  getLunch(date, function(data) {
     var meals = data;
-    var message = "*Bugünkü öğle yemeği:*\n"
+    var message;
     for (var i = 0; i < meals.length; i++) {
       message += meals[i] + "\n"
     }
     message += "*Afiyet olsun!* :meat_on_bone:"
-    bot.postMessage(channel, message, function(data) {
-      console.log("channel " + channel);
-      console.log(data);
+    bot.postMessage(channel, message).always(function(data) {
+      if(data._value.ok){
+        onSuccess();
+      }else{
+        onError(data._value.error);
+      }
     });
   });
 }
 
-function sendDinnerToChannel(date, channel, successCallback, errorCallback) {
-  getDinner(date, function onSuccess(data) {
+function sendDinnerToChannel(date, channel, onSuccess, onError) {
+  getDinner(date, function(data) {
     var meals = data;
-    var message = "*Bugünkü akşam yemeği:*\n"
-    for (var i = 0; i < meals.length; i++) {
-      message += meals[i] + "\n"
+    var message;
+    if(!meals || meals === {}) {
+      message = "Bugünün yemeklerini söyleyemiyorum, çok üzgünüm :(";
+    }else{
+      message = "*Bugünkü öğle yemeği:*\n";
+      for (var i = 0; i < meals.length; i++) {
+        message += meals[i] + "\n"
+      }
+      message += "*Afiyet olsun!* :meat_on_bone:"
     }
-    message += "*Afiyet olsun!* :meat_on_bone:"
-    bot.postMessage(channel, message, function(data) {
-      if(!data) {
-        successCallback();
+    bot.postMessage(channel, message).always(function(data) {
+      if(data._value.ok){
+        onSuccess();
       }else{
-        errorCallback(data.message);
+        onError(data._value.error);
       }
     });
+    }
   });
 }
 
 function sendLunchToUser(date, userChannel, onSuccess, onError) {
   getLunch(date, function onSuccess(data) {
     var meals = data;
-    var message = "*Bugünkü öğle yemeği:*\n"
-    for (var i = 0; i < meals.length; i++) {
-      message += meals[i] + "\n"
+    var message;
+    if(!meals || meals === {}) {
+      message = "Bugünün yemeklerini söyleyemiyorum, çok üzgünüm :(";
+    }else{
+      message = "*Bugünkü öğle yemeği:*\n";
+      for (var i = 0; i < meals.length; i++) {
+        message += meals[i] + "\n"
+      }
+      message += "*Afiyet olsun!* :meat_on_bone:"
     }
-    message += "*Afiyet olsun!* :meat_on_bone:"
     bot.postMessage(userChannel, message, function(data) {
+      onSuccess();
       if(!data) {
         onSuccess();
       }else{
@@ -105,11 +120,16 @@ function sendLunchToUser(date, userChannel, onSuccess, onError) {
 function sendDinnerToUser(date, userChannel, onSuccess, onError) {
   getDinner(date, function onSuccess(data) {
     var meals = data;
-    var message = "*Bugünkü akşam yemeği:*\n"
-    for (var i = 0; i < meals.length; i++) {
-      message += meals[i] + "\n"
+    var message;
+    if(!meals || meals === {}) {
+      message = "Bugünün yemeklerini söyleyemiyorum, çok üzgünüm :(";
+    }else{
+      message = "*Bugünkü akşam yemeği:*\n";
+      for (var i = 0; i < meals.length; i++) {
+        message += meals[i] + "\n"
+      }
+      message += "*Afiyet olsun!* :meat_on_bone:"
     }
-    message += "*Afiyet olsun!* :meat_on_bone:"
     bot.postMessage(userChannel, message, function(data) {
       if(!data) {
         onSuccess();
@@ -130,12 +150,12 @@ bot.on('message', function(message) {
 
     if(type == "message" && subtype != "bot_message"){
       if(text.toLowerCase().match("aksam|akşam")){
-        console.log(message);
-        sendDinnerToUser(new Date(), channel, function() {
-          console.log("deneme");
-        }, console.log);
-      }
-      if(text.toLowerCase().match("ogle|öğle")){
+        sendDinnerToUser(new Date(), channel);
+      }else if(text.toLowerCase().match("ogle|öğle")){
+        sendLunchToUser(new Date(), channel);
+      }else{
+        bot.postMessage(channel,
+          "Selam! Bana \"öğle\" yazarsan bugünün öğle yemeklerini; bana \"akşam\" yazarsan bugünün akşam yemeklerini söylerim!");
       }
     }
 });
@@ -143,6 +163,6 @@ bot.on('message', function(message) {
 
 
 module.exports = {
-  sendLunch: function(date, onSuccess, onError) { sendLunchToChannel(date, channel, onSuccess, onError) },
-  sendDinner: function(date, onSuccess, onError) { sendDinnerToChannel(date, channel, onSuccess, onError) }
+  sendLunch: function(date, onSuccess, onError) { sendLunchToChannel(date, channel, onSuccess, onError); },
+  sendDinner: function(date, onSuccess, onError) { sendDinnerToChannel(date, channel, onSuccess, onError); }
 }
