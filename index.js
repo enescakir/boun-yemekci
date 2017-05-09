@@ -35,31 +35,31 @@ app.get('/', function(request, res) {
     res.send(data);
   });
 });
-
-app.get('/import', function(request, res) {
-  res.setHeader('Content-Type', 'application/json');
-  processor.getJSONMonthlyYemekList(function(data) {
-    data = JSON.parse(data)
-    Object.keys(data).forEach(function(key,index) {
-      client.set(key, JSON.stringify(data[key]));
-      console.log(key + " saved")
-    });
-    res.send(data);
-  });
-});
-
-app.get('/send/lunch', function(request, res) {
-  var today = new Date();
-  bot.sendLunch(today);
-  res.send("gönderildi");
-});
-
-app.get('/send/dinner', function(request, res) {
-  var today = new Date();
-  bot.sendDinner(today);
-  res.send("gönderildi");
-
-});
+//
+// app.get('/import', function(request, res) {
+//   res.setHeader('Content-Type', 'application/json');
+//   processor.getJSONMonthlyYemekList(function(data) {
+//     data = JSON.parse(data)
+//     Object.keys(data).forEach(function(key,index) {
+//       client.set(key, JSON.stringify(data[key]));
+//       console.log(key + " saved")
+//     });
+//     res.send(data);
+//   });
+// });
+//
+// app.get('/send/lunch', function(request, res) {
+//   var today = new Date();
+//   bot.sendLunch(today);
+//   res.send("gönderildi");
+// });
+//
+// app.get('/send/dinner', function(request, res) {
+//   var today = new Date();
+//   bot.sendDinner(today);
+//   res.send("gönderildi");
+//
+// });
 
 
 app.listen(app.get('port'), function() {

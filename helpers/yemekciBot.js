@@ -115,7 +115,7 @@ function sendLunchToUser(date, userChannel, onSuccess, onError) {
 function sendDinnerToUser(date, userChannel, onSuccess, onError) {
   getDinner(date, function onSuccess(data) {
     var meals = data;
-    var message = "*Bugünkü akşam yemeği:*\n"
+    var message = "*Bugünkü" + + " akşam yemeği:*\n"
     for (var i = 0; i < meals.length; i++) {
       message += meals[i] + "\n"
     }
