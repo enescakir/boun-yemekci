@@ -6,9 +6,17 @@ var constants = require('./constants/fileConstants');
 var redis = require('redis');
 var schedule = require('node-schedule');
 
-// var j = schedule.scheduleJob('*/3 * * * * *', function(){
-//   console.log('The answer to life, the universe, and everything!');
-// });
+schedule.scheduleJob('0 0 11 1/1 * ? *', function(){
+  var today = new Date();
+  bot.sendLunch(today);
+  bot.sendLunchToTwitter(today);
+});
+
+schedule.scheduleJob('0 30 16 1/1 * ? *', function(){
+  var today = new Date();
+  bot.sendDinner(today);
+  bot.sendDinnerToTwitter(today);
+});
 
 var client = redis.createClient();
 
