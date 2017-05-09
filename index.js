@@ -5,6 +5,7 @@ var bot = require('./helpers/yemekciBot');
 var constants = require('./constants/fileConstants');
 var redis = require('redis');
 var schedule = require('node-schedule');
+var dotenv = require('dotenv').config();
 
 schedule.scheduleJob('0 0 11 1/1 * ? *', function(){
   var today = new Date();
