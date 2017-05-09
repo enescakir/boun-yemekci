@@ -148,6 +148,6 @@ bot.on('message', function(message) {
 module.exports = {
   sendLunch: function(date, onSuccess, onError) { sendLunchToChannel(date, channel, onSuccess, onError) },
   sendDinner: function(date, onSuccess, onError) { sendDinnerToChannel(date, channel, onSuccess, onError) },
-  sendLunchToTwitter: function(date, onSuccess, onError) { sendLunchToTwitter(date, onSuccess, onError)}
+  sendLunchToTwitter: function(date, onSuccess, onError) { sendLunchToTwitter(date, onSuccess, onError)},
   sendDinnerToTwitter: function(date, onSuccess, onError) { sendDinnerToTwitter(date, onSuccess, onError)}
 }
