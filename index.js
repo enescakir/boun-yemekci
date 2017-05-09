@@ -43,6 +43,8 @@ app.get('/send/lunch', function(request, res) {
   var today = new Date();
   bot.sendLunch(today, function() {
     res.send(today);
+  }, function(msg) {
+    res.send(msg);
   });
 });
 

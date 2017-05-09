@@ -59,7 +59,10 @@ function sendLunchToChannel(date, channel, onSuccess, onError) {
       message += meals[i] + "\n"
     }
     message += "*Afiyet olsun!* :meat_on_bone:"
-    bot.postMessageToChannel(channel, message).then(onSuccess).catch(onError);
+    bot.postMessage(channel, message, function(data) {
+      console.log("channel " + channel);
+      console.log(data);
+    });
   });
 }
 
@@ -71,7 +74,13 @@ function sendDinnerToChannel(date, channel, successCallback, errorCallback) {
       message += meals[i] + "\n"
     }
     message += "*Afiyet olsun!* :meat_on_bone:"
-    bot.postMessageToChannel(channel, message).then(onSuccess).catch(onError);
+    bot.postMessage(channel, message, function(data) {
+      if(!data) {
+        successCallback();
+      }else{
+        errorCallback(data.message);
+      }
+    });
   });
 }
 
@@ -83,7 +92,13 @@ function sendLunchToUser(date, userChannel, onSuccess, onError) {
       message += meals[i] + "\n"
     }
     message += "*Afiyet olsun!* :meat_on_bone:"
-    bot.postMessage(userChannel, message);
+    bot.postMessage(userChannel, message, function(data) {
+      if(!data) {
+        onSuccess();
+      }else{
+        onError(data.message);
+      }
+    });
   });
 }
 
@@ -95,7 +110,13 @@ function sendDinnerToUser(date, userChannel, onSuccess, onError) {
       message += meals[i] + "\n"
     }
     message += "*Afiyet olsun!* :meat_on_bone:"
-    bot.postMessage(userChannel, message);
+    bot.postMessage(userChannel, message, function(data) {
+      if(!data) {
+        onSuccess();
+      }else{
+        onError(data.message);
+      }
+    });
   });
 }
 
@@ -106,8 +127,6 @@ bot.on('message', function(message) {
     var text = message.text
     var channel = message.channel
     var userId = message.user;
-    console.log("=====");
-    console.log(message);
 
     if(type == "message" && subtype != "bot_message"){
       if(text.toLowerCase().match("aksam|akşam")){
