@@ -20,69 +20,125 @@ var twitter = new Twitter({
 
 var channel = process.env.BOT_CHANNEL;
 
-function getLunch(date) {
-  return new Promise(function() {
-    var dd = date.getDate();
-    var mm = date.getMonth() + 1; // getMonth() is zero-based
-    var yyyy = date.getFullYear();
-    var key = [(dd>9 ? '' : '0') + dd, (mm>9 ? '' : '0') + mm, yyyy].join('/');
-
-    client.get(key, function(err, yemekJson) {
-      yemekObject = JSON.parse(yemekJson)
-      return yemekObject[constants.LUNCH_IDENTIFIER]
-    });
-  });
-}
-
-function sendLunch(date, onSuccess, onError) {
+function getYemek(date, onSuccess, onError) {
   var dd = date.getDate();
   var mm = date.getMonth() + 1; // getMonth() is zero-based
   var yyyy = date.getFullYear();
   var key = [(dd>9 ? '' : '0') + dd, (mm>9 ? '' : '0') + mm, yyyy].join('/');
 
   client.get(key, function(err, yemekJson) {
-    yemekObject = JSON.parse(yemekJson)
-    var meals = yemekObject[constants.LUNCH_IDENTIFIER]
+    if(!yemekJson) {
+      onError();
+      console.log(err);
+    }else{
+      yemekObject = JSON.parse(yemekJson);
+      onSuccess(yemekObject);
+    }
+  });
+}
+function getLunch(date, onSuccess, onError) {
+  getYemek(date, function success(yemekObject) {
+    onSuccess(yemekObject[constants.LUNCH_IDENTIFIER]);
+  }, onError);
+}
+
+function getDinner(date, onSuccess, onError) {
+  getYemek(date, function success(yemekObject) {
+    onSuccess(yemekObject[constants.DINNER_IDENTIFIER]);
+  }, onError);
+}
+
+function sendLunchToChannel(date, channel, onSuccess, onError) {
+  // var dd = date.getDate();
+  // var mm = date.getMonth() + 1; // getMonth() is zero-based
+  // var yyyy = date.getFullYear();
+  // var key = [(dd>9 ? '' : '0') + dd, (mm>9 ? '' : '0') + mm, yyyy].join('/');
+  //
+  // client.get(key, function(err, yemekJson) {
+  //   yemekObject = JSON.parse(yemekJson)
+  //
+  //   // twitter.post('statuses/update', { status: message }, function(err, data, response) {
+  //   //   // console.log(data)
+  //   // })
+  //
+  // });
+
+  getLunch(date, function onSuccess(data) {
+    var meals = data;
     var message = "*Bugünkü öğle yemeği:*\n"
     for (var i = 0; i < meals.length; i++) {
       message += meals[i] + "\n"
     }
     message += "*Afiyet olsun!* :meat_on_bone:"
     bot.postMessageToChannel(channel, message).then(onSuccess).catch(onError);
-    // twitter.post('statuses/update', { status: message }, function(err, data, response) {
-    //   // console.log(data)
-    // })
-
   });
 }
 
-function sendDinner(date, successCallback, errorCallback) {
-  var dd = date.getDate();
-  var mm = date.getMonth() + 1; // getMonth() is zero-based
-  var yyyy = date.getFullYear();
-  var key = [(dd>9 ? '' : '0') + dd, (mm>9 ? '' : '0') + mm, yyyy].join('/');
-  client.get(key, function(err, yemekJson) {
-    yemekObject = JSON.parse(yemekJson)
-    var meals = yemekObject[constants.DINNER_IDENTIFIER]
-    var message = "*Bugünkü akşam yemeği:*\n"
+function sendDinnerToChannel(date, channel, successCallback, errorCallback) {
+  // var dd = date.getDate();
+  // var mm = date.getMonth() + 1; // getMonth() is zero-based
+  // var yyyy = date.getFullYear();
+  // var key = [(dd>9 ? '' : '0') + dd, (mm>9 ? '' : '0') + mm, yyyy].join('/');
+  // client.get(key, function(err, yemekJson) {
+  //   yemekObject = JSON.parse(yemekJson)
+  //   var meals = yemekObject[constants.DINNER_IDENTIFIER]
+  //   var message = "*Bugünkü akşam yemeği:*\n"
+  //   for (var i = 0; i < meals.length; i++) {
+  //     message += meals[i] + "\n"
+  //   }
+  //   message += "*Afiyet olsun!* :meat_on_bone:"
+  //   bot.postMessageToChannel(channel, message).then(successCallback).fail(errorCallback);
+  // });
+  getDinner(date, function onSuccess(data) {
+    var meals = data;
+    var message = "*Bugünkü aksam yemeği:*\n"
     for (var i = 0; i < meals.length; i++) {
       message += meals[i] + "\n"
     }
     message += "*Afiyet olsun!* :meat_on_bone:"
-    bot.postMessageToChannel(channel, message).then(successCallback).fail(errorCallback);
+    bot.postMessageToChannel(channel, message).then(onSuccess).catch(onError);
+  });
+}
+
+function sendLunchToUser(date, user, onSuccess, onError) {
+  getLunch(date, function onSuccess(data) {
+    var meals = data;
+    var message = "*Bugünkü öğle yemeği:*\n"
+    for (var i = 0; i < meals.length; i++) {
+      message += meals[i] + "\n"
+    }
+    message += "*Afiyet olsun!* :meat_on_bone:"
+    bot.postTo(user, message).then(onSuccess).catch(onError);
+  });
+}
+
+function sendDinnerToUser(date, user, onSuccess, onError) {
+  getDinner(date, function onSuccess(data) {
+    var meals = data;
+    var message = "*Bugünkü aksam yemeği:*\n"
+    for (var i = 0; i < meals.length; i++) {
+      message += meals[i] + "\n"
+    }
+    message += "*Afiyet olsun!* :meat_on_bone:"
+    bot.postTo(user, message).then(onSuccess).catch(onError);
   });
 }
 
 bot.on('message', function(message) {
-    // message = JSON.parse(data)
+    //message = JSON.parse(data)
     var type = message.type
     var subtype = message.subtype
     var text = message.text
     var channel = message.channel
+    var userId = message.user;
+
     if(type == "message" && subtype != "bot_message"){
       if(text.toLowerCase().match("aksam|akşam")){
         //bot.postMessage(channel, "akşam mı?")
-        sendDinner(new Date())
+        console.log(message);
+        sendDinnerToUser(new Date(), userId, function() {
+          console.log("deneme");
+        }, console.log);
       }
       if(text.toLowerCase().match("ogle|öğle")){
         sendLunch(new Date())
@@ -105,6 +161,6 @@ bot.on('message', function(message) {
 
 
 module.exports = {
-  sendLunch: function(date, onSuccess, onError) { sendLunch(date, onSuccess, onError) },
-  sendDinner: function(date, onSuccess, onError) { sendDinner(date, onSuccess, onError) }
+  sendLunch: function(date, onSuccess, onError) { sendLunchToChannel(date, channel, onSuccess, onError) },
+  sendDinner: function(date, onSuccess, onError) { sendDinnerToChannel(date, channel, onSuccess, onError) }
 }
