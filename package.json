@@ -24,5 +24,8 @@
     "heroku",
     "express"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "node-schedule": "^1.2.1"
+  }
 }
