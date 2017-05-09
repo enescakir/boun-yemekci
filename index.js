@@ -41,20 +41,14 @@ app.get('/import', function(request, res) {
 
 app.get('/send/lunch', function(request, res) {
   var today = new Date();
-  bot.sendLunch(today, function() {
-    res.send(today);
-  }, function(msg) {
-    res.send(msg);
-  });
+  bot.sendLunch(today);
+  res.send("gönderildi");
 });
 
 app.get('/send/dinner', function(request, res) {
   var today = new Date();
-  bot.sendDinner(today, function success() {
-    res.send("Today's dinner is sent!");
-  }, function(msg) {
-    res.send(msg);
-  });
+  bot.sendDinner(today);
+  res.send("gönderildi");
 
 });
 
