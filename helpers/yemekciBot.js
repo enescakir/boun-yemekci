@@ -3,11 +3,19 @@ var processor = require('../helpers/processor');
 var constants = require('../constants/fileConstants');
 var redis = require('redis');
 var client = redis.createClient();
+var Twitter = require('twit')
 
 var bot = new SlackBot({
     token: "",
     name: 'yemekci'
 });
+
+var twitter = new Twitter({
+  consumer_key:         '',
+  consumer_secret:      '',
+  access_token:         '',
+  access_token_secret:  '',
+})
 
 var channel = "yemekci-deneme";
 
