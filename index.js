@@ -4,6 +4,12 @@ var processor = require('./helpers/processor');
 var bot = require('./helpers/yemekciBot');
 var constants = require('./constants/fileConstants');
 var redis = require('redis');
+var schedule = require('node-schedule');
+
+// var j = schedule.scheduleJob('*/3 * * * * *', function(){
+//   console.log('The answer to life, the universe, and everything!');
+// });
+
 var client = redis.createClient();
 
 app.set('port', (process.env.PORT || 5000));
@@ -29,28 +35,25 @@ app.get('/import', function(request, res) {
       client.set(key, JSON.stringify(data[key]));
       console.log(key + " saved")
     });
-    res.send("Success");
+    res.send(data);
   });
 });
 
 app.get('/send/lunch', function(request, res) {
   var today = new Date();
-  var dd = today.getDate();
-  var mm = today.getMonth() + 1; // getMonth() is zero-based
-  var yyyy = today.getFullYear();
-  var key = [(dd>9 ? '' : '0') + dd, (mm>9 ? '' : '0') + mm, yyyy].join('/');
-
-  client.get(key, function(err, yemekJson) {
-    yemekObject = JSON.parse(yemekJson)
-    var lunch = yemekObject[constants.LUNCH_IDENTIFIER];
-    bot.sendLunch(lunch);
-    res.send(lunch);
+  bot.sendLunch(today, function() {
+    res.send(today);
   });
 });
 
 app.get('/send/dinner', function(request, res) {
   var today = new Date();
-  bot.sendDinner(today);
+  bot.sendDinner(today, function success() {
+    res.send("Today's dinner is sent!");
+  }, function() {
+    res.send("couldn't send!");
+  });
+
 });
 
 
