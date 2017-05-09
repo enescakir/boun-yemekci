@@ -34,6 +34,7 @@ function getHtmlContent() {
     fs.readFile(constants.RAW_HTML_NAME, function(err, data) {
       if(err) {
         reject(err);
+        return 1;
       }
 
       resolve(data.toString('utf8')); //data is a buffer, turned that to utf8
