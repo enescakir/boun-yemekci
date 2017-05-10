@@ -65,7 +65,7 @@ function sendLunchToTwitter(date, onSuccess, onError) {
     for (var i = 0; i < meals.length; i++) {
       message += meals[i] + "\n";
     }
-    message += "Afiyet olsun! \uF356"
+    message += "Afiyet olsun!"
 
     twitter.post('statuses/update', { status: message }, function(err, data, response) {
       console.log(err);
@@ -92,7 +92,7 @@ function sendDinnerToTwitter(date, onSuccess, onError) {
     for (var i = 0; i < meals.length; i++) {
       message += meals[i] + "\n";
     }
-    message += "Afiyet olsun! \uF356"
+    message += "Afiyet olsun!"
 
     twitter.post('statuses/update', { status: message }, function(err, data, response) {
       console.log(err);
