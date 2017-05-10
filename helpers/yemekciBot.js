@@ -3,7 +3,7 @@ var processor = require('../helpers/processor');
 var constants = require('../constants/fileConstants');
 var redis = require('redis');
 var dotenv = require('dotenv').config()
-var client = redis.createClient();
+
 var Twitter = require('twit');
 
 var bot = new SlackBot({
@@ -21,6 +21,7 @@ var twitter = new Twitter({
 });
 
 function getYemek(date, onSuccess, onError) {
+  var client = redis.createClient();
   var dd = date.getDate();
   var mm = date.getMonth() + 1; // getMonth() is zero-based
   var yyyy = date.getFullYear();
@@ -33,6 +34,8 @@ function getYemek(date, onSuccess, onError) {
       yemekObject = JSON.parse(yemekJson);
       onSuccess(yemekObject);
     }
+
+    client.quit();
   });
 }
 
@@ -73,7 +76,6 @@ function sendLunchToTwitter(date, onSuccess, onError) {
     })
   });
 }
-
 
 function sendDinnerToChannel(date, channel, successCallback, errorCallback) {
   getDinner(date, function onSuccess(data) {
@@ -145,8 +147,6 @@ function listenSlackMessages() {
       }
   });
 }
-
-
 
 
 module.exports = {
