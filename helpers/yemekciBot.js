@@ -10,6 +10,7 @@ var bot = new SlackBot({
     token: process.env.BOT_TOKEN,
     name: process.env.BOT_NAME,
 });
+
 var channel = process.env.BOT_CHANNEL;
 
 var twitter = new Twitter({
@@ -124,24 +125,27 @@ function sendDinnerToUser(date, userChannel, onSuccess, onError) {
   });
 }
 
-bot.on('message', function(message) {
-    //message = JSON.parse(data)
-    var type = message.type
-    var subtype = message.subtype
-    var text = message.text
-    var channel = message.channel
-    var userId = message.user;
+function listenSlackMessages() {
+  bot.on('message', function(message) {
+      //message = JSON.parse(data)
+      var type = message.type
+      var subtype = message.subtype
+      var text = message.text
+      var channel = message.channel
+      var userId = message.user;
 
-    if(type == "message" && subtype != "bot_message"){
-      if(text.toLowerCase().match("aksam|akşam")){
-        sendDinnerToUser(new Date(), channel);
-      }else if(text.toLowerCase().match("ogle|öğle")){
-        sendLunchToChannel(new Date(), channel);
-      }else {
-        bot.postMessage(channel, "Selam! Bana \"öğle\" yazarsan bugünün öğle yemeğini, \"akşam\" yazarsan bugünün akşam yemeğini söylerim.");
+      if(type == "message" && subtype != "bot_message"){
+        if(text.toLowerCase().match("aksam|akşam")){
+          sendDinnerToUser(new Date(), channel);
+        }else if(text.toLowerCase().match("ogle|öğle")){
+          sendLunchToChannel(new Date(), channel);
+        }else {
+          bot.postMessage(channel, "Selam! Bana \"öğle\" yazarsan bugünün öğle yemeğini, \"akşam\" yazarsan bugünün akşam yemeğini söylerim.");
+        }
       }
-    }
-});
+  });
+}
+
 
 
 
@@ -149,5 +153,6 @@ module.exports = {
   sendLunch: function(date, onSuccess, onError) { sendLunchToChannel(date, channel, onSuccess, onError) },
   sendDinner: function(date, onSuccess, onError) { sendDinnerToChannel(date, channel, onSuccess, onError) },
   sendLunchToTwitter: function(date, onSuccess, onError) { sendLunchToTwitter(date, onSuccess, onError)},
-  sendDinnerToTwitter: function(date, onSuccess, onError) { sendDinnerToTwitter(date, onSuccess, onError)}
+  sendDinnerToTwitter: function(date, onSuccess, onError) { sendDinnerToTwitter(date, onSuccess, onError)},
+  listenSlackMessages: function() { listenSlackMessages() }
 }

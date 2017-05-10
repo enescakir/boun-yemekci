@@ -7,18 +7,6 @@ var redis = require('redis');
 var schedule = require('node-schedule');
 var dotenv = require('dotenv').config();
 
-schedule.scheduleJob('0 0 11 1/1 * ? *', function(){
-  var today = new Date();
-  bot.sendLunch(today);
-  bot.sendLunchToTwitter(today);
-});
-
-schedule.scheduleJob('0 30 16 1/1 * ? *', function(){
-  var today = new Date();
-  bot.sendDinner(today);
-  bot.sendDinnerToTwitter(today);
-});
-
 var client = redis.createClient();
 
 app.set('port', (process.env.PORT || 5000));
@@ -35,6 +23,8 @@ app.get('/', function(request, res) {
     res.send(data);
   });
 });
+
+bot.listenSlackMessages();
 //
 // app.get('/import', function(request, res) {
 //   res.setHeader('Content-Type', 'application/json');
