@@ -3,7 +3,8 @@ var processor = require('../helpers/processor');
 var constants = require('../constants/fileConstants');
 var redis = require('redis');
 var dotenv = require('dotenv').config()
-
+var moment = require('moment');
+require('moment/locale/tr');
 var Twitter = require('twit');
 
 var bot = new SlackBot({
@@ -54,18 +55,18 @@ function getDinner(date, onSuccess, onError) {
 function sendLunchToChannel(date, channel, onSuccess, onError) {
   getLunch(date, function onSuccess(data) {
     var meals = data;
-    var message = "*Bugünkü öğle yemeği:*\n"
+    var message = "*" + moment(date).format("D MMMM dddd") + " öğle yemeği:*\n"
     for (var i = 0; i < meals.length; i++) {
-      message += meals[i] + "\n"
+      message += "> " + meals[i] + "\n"
     }
-    message += "*Afiyet olsun!* :meat_on_bone:"
+    message += "*Afiyet olsun!* :stew:"
     bot.postMessage(channel, message);
   });
 }
 
 function sendLunchToTwitter(date, onSuccess, onError) {
   getLunch(date, function onSuccess(meals) {
-    var message = "Bugünkü öğle yemeği:\n";
+    var message = moment(date).format("D MMMM dddd") + " öğle yemeği:\n"
     for (var i = 0; i < meals.length; i++) {
       message += meals[i] + "\n";
     }
@@ -80,18 +81,18 @@ function sendLunchToTwitter(date, onSuccess, onError) {
 function sendDinnerToChannel(date, channel, successCallback, errorCallback) {
   getDinner(date, function onSuccess(data) {
     var meals = data;
-    var message = "*Bugünkü akşam yemeği:*\n"
+    var message = "*" + moment(date).format("D MMMM dddd") + " akşam yemeği:*\n"
     for (var i = 0; i < meals.length; i++) {
-      message += meals[i] + "\n"
+      message += "> " + meals[i] + "\n"
     }
-    message += "*Afiyet olsun!* :meat_on_bone:"
+    message += "*Afiyet olsun!* :stew:"
     bot.postMessage(channel, message);
   });
 }
 
 function sendDinnerToTwitter(date, onSuccess, onError) {
   getDinner(date, function onSuccess(meals) {
-    var message = "Bugünkü akşam yemeği:\n";
+    var message = moment(date).format("D MMMM dddd") + " akşam yemeği:\n"
     for (var i = 0; i < meals.length; i++) {
       message += meals[i] + "\n";
     }
@@ -106,11 +107,11 @@ function sendDinnerToTwitter(date, onSuccess, onError) {
 function sendLunchToUser(date, userChannel, onSuccess, onError) {
   getLunch(date, function onSuccess(data) {
     var meals = data;
-    var message = "*Bugünkü öğle yemeği:*\n"
+    var message = "*" + moment(date).format("D MMMM dddd") + " öğle yemeği:*\n"
     for (var i = 0; i < meals.length; i++) {
-      message += meals[i] + "\n"
+      message += "> " + meals[i] + "\n"
     }
-    message += "*Afiyet olsun!* :meat_on_bone:"
+    message += "*Afiyet olsun!* :stew:"
     bot.postMessage(userChannel, message);
   });
 }
@@ -118,18 +119,17 @@ function sendLunchToUser(date, userChannel, onSuccess, onError) {
 function sendDinnerToUser(date, userChannel, onSuccess, onError) {
   getDinner(date, function onSuccess(data) {
     var meals = data;
-    var message = "*Bugünkü" + + " akşam yemeği:*\n"
+    var message = "*" + moment(date).format("D MMMM dddd") + " akşam yemeği:*\n"
     for (var i = 0; i < meals.length; i++) {
-      message += meals[i] + "\n"
+      message += "> " + meals[i] + "\n"
     }
-    message += "*Afiyet olsun!* :meat_on_bone:"
+    message += "*Afiyet olsun!* :stew:"
     bot.postMessage(userChannel, message);
   });
 }
 
 function listenSlackMessages() {
   bot.on('message', function(message) {
-      //message = JSON.parse(data)
       var type = message.type
       var subtype = message.subtype
       var text = message.text
@@ -139,16 +139,14 @@ function listenSlackMessages() {
       if(type == "message" && subtype != "bot_message"){
         if(text.toLowerCase().match("aksam|akşam")){
           sendDinnerToUser(new Date(), channel);
-        }else if(text.toLowerCase().match("ogle|öğle")){
+        } else if(text.toLowerCase().match("ogle|öğle")){
           sendLunchToChannel(new Date(), channel);
-        }else {
+        } else {
           bot.postMessage(channel, "Selam! Bana \"öğle\" yazarsan bugünün öğle yemeğini, \"akşam\" yazarsan bugünün akşam yemeğini söylerim.");
         }
       }
   });
 }
-
-
 module.exports = {
   sendLunch: function(date, onSuccess, onError) { sendLunchToChannel(date, channel, onSuccess, onError) },
   sendDinner: function(date, onSuccess, onError) { sendDinnerToChannel(date, channel, onSuccess, onError) },
