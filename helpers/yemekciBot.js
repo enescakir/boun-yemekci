@@ -130,6 +130,7 @@ function listenSlackMessages() {
       if(type == "message" && subtype != "bot_message"){
         if(subtype == "group_join" || subtype == "group_leave"){
           // Özelden mesaj atalım. Botumuzu tanıtan.
+          // Ayrılınca da seni özleyeceğiz filan olabilir
           /*{
             user: 'U4URYRYGH',
             inviter: 'U4VE6R3EF',
@@ -150,12 +151,32 @@ function listenSlackMessages() {
             ts: '1494587821.593556'
           }*/
         } else {
-          if(text.toLowerCase().match("aksam|akşam")){
-            sendDinnerToUser(new Date(), channel);
-          } else if(text.toLowerCase().match("ogle|öğle")){
-            sendLunchToChannel(new Date(), channel);
+          text = text.toLowerCase();
+          // Deciding date
+          var date = new Date();
+          if(text.match("bugun|bugün|bu")){
+            // Today
+            date = new Date();
+          } else if(text.match("yarın|yarin")){
+            // Tomorrow
+            date.setDate(date.getDate() + 1);
+          } else if(text.match("dün|dun")){
+            // Yesterday
+            date.setDate(date.getDate() - 1);
           } else {
-            bot.postMessage(channel, "Selam! Bana \"öğle\" yazarsan bugünün öğle yemeğini, \"akşam\" yazarsan bugünün akşam yemeğini söylerim.");
+            if(date.getHours() >= 20){
+              // If 8 PM past, says new day's meals
+              date.setDate(date.getDate() + 1);
+            }
+          }
+
+          // Deciding meals
+          if(text.match("aksam|akşam")){
+            sendDinnerToUser(date, channel);
+          } else if(text.match("ogle|öğle")){
+            sendLunchToChannel(date, channel);
+          } else {
+            bot.postMessage(channel, "Selam! Bana _`öğle, akşam, bugün, yarın, dün`_ gibi anahtar kelimelerle soru sorarsan sana yemeği söylerim.");
           }
         }
       }
