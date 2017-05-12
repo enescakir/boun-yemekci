@@ -127,14 +127,36 @@ function listenSlackMessages() {
       var text = message.text
       var channel = message.channel
       var userId = message.user;
-
       if(type == "message" && subtype != "bot_message"){
-        if(text.toLowerCase().match("aksam|akşam")){
-          sendDinnerToUser(new Date(), channel);
-        } else if(text.toLowerCase().match("ogle|öğle")){
-          sendLunchToChannel(new Date(), channel);
+        if(subtype == "group_join" || subtype == "group_leave"){
+          // Özelden mesaj atalım. Botumuzu tanıtan.
+          /*{
+            user: 'U4URYRYGH',
+            inviter: 'U4VE6R3EF',
+            user_profile: {
+              avatar_hash: '886e4d195989',
+              image_72: 'https://avatars.slack-edge.com/2017-04-08/167268456103_886e4d1959898477bfaf_72.jpg',
+              first_name: 'Dilruba Reyyan',
+              real_name: 'Dilruba Reyyan',
+              current_status: null,
+              name: 'abcdrk'
+            },
+            type: 'message',
+            subtype: 'group_join',
+            team: 'T4W6UDGKY',
+            text: '<@U4URYRYGH|abcdrk> has joined the group',
+            channel: 'G593QFBH6',
+            event_ts: '1494587821.593556',
+            ts: '1494587821.593556'
+          }*/
         } else {
-          bot.postMessage(channel, "Selam! Bana \"öğle\" yazarsan bugünün öğle yemeğini, \"akşam\" yazarsan bugünün akşam yemeğini söylerim.");
+          if(text.toLowerCase().match("aksam|akşam")){
+            sendDinnerToUser(new Date(), channel);
+          } else if(text.toLowerCase().match("ogle|öğle")){
+            sendLunchToChannel(new Date(), channel);
+          } else {
+            bot.postMessage(channel, "Selam! Bana \"öğle\" yazarsan bugünün öğle yemeğini, \"akşam\" yazarsan bugünün akşam yemeğini söylerim.");
+          }
         }
       }
   });
