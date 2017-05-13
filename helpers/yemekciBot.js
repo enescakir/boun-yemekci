@@ -1,6 +1,7 @@
 var SlackBot = require('slackbots');
 var processor = require('../helpers/processor');
-var constants = require('../constants/fileConstants');
+var fileConstants = require('../constants/fileConstants');
+var messageConstants = require('../constants/messageConstants');
 var redis = require('redis');
 var dotenv = require('dotenv').config()
 var Twitter = require('twit');
@@ -39,13 +40,13 @@ function getYemek(date, onSuccess, onError) {
 
 function getLunch(date, onSuccess, onError) {
   getYemek(date, function success(yemekObject) {
-    onSuccess(yemekObject[constants.LUNCH_IDENTIFIER]);
+    onSuccess(yemekObject[fileConstants.LUNCH_IDENTIFIER]);
   }, onError);
 }
 
 function getDinner(date, onSuccess, onError) {
   getYemek(date, function success(yemekObject) {
-    onSuccess(yemekObject[constants.DINNER_IDENTIFIER]);
+    onSuccess(yemekObject[fileConstants.DINNER_IDENTIFIER]);
   }, onError);
 }
 
@@ -58,7 +59,7 @@ function createMessage(date, meals, time, isMarkdown, onSuccess, onError) {
     quote = "> ";
     emoji = ":stew:";
   }
-  
+
   var message = bold + moment(date).format("D MMMM dddd") + " " + time + " yemeği:" + bold + "\n";
   for (var i = 0; i < meals.length; i++)
     message += quote + meals[i] + "\n";
@@ -130,7 +131,9 @@ function listenSlackMessages() {
       var channel = message.channel
       var userId = message.user;
       if(type == "message" && subtype != "bot_message"){
-        if(subtype == "group_join" || subtype == "group_leave"){
+        if(subtype == "group_join"){
+          var welcomeMessage = messageConstants.CHANNEL_WELCOME_MSG + ", " + messageConstants.FIRST_MSG;
+          bot.postMessage(userId, welcomeMessage);
           // Özelden mesaj atalım. Botumuzu tanıtan.
           // Ayrılınca da seni özleyeceğiz filan olabilir
           /*{
@@ -152,6 +155,9 @@ function listenSlackMessages() {
             event_ts: '1494587821.593556',
             ts: '1494587821.593556'
           }*/
+        } else if(subtype == "group_leave") {
+          var leftMessage = messageConstants.LEFT_MSG;
+          bot.postMessage(userId, leftMessage);
         } else {
           text = text.toLowerCase();
           // Deciding date
