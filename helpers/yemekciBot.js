@@ -52,15 +52,17 @@ function getDinner(date, onSuccess, onError) {
 function createMessage(date, meals, time, isMarkdown, onSuccess, onError) {
   var bold = "";
   var quote = "";
-
+  var emoji = "";
   if(isMarkdown){
     bold = "*";
     quote = "> ";
+    emoji = ":stew:";
   }
+  
   var message = bold + moment(date).format("D MMMM dddd") + " " + time + " yemeği:" + bold + "\n";
   for (var i = 0; i < meals.length; i++)
     message += quote + meals[i] + "\n";
-  message += bold + "Afiyet olsun!" + bold + " :stew:";
+  message += bold + "Afiyet olsun!" + bold + " " + emoji;
   onSuccess(message);
 }
 
