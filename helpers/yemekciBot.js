@@ -74,7 +74,7 @@ function sendLunchToChannel(date, channel, onSuccess, onError) {
 
 function sendLunchToTwitter(date, onSuccess, onError) {
   getLunch(date, function onSuccess(meals) {
-    createMessage(date, data, "öğle", false, function onSuccess(message) {
+    createMessage(date, meals, "öğle", false, function onSuccess(message) {
       twitter.post('statuses/update', { status: message }, function(err, data, response) {
         if(err){
           console.log(err);
@@ -94,7 +94,7 @@ function sendDinnerToChannel(date, channel, successCallback, errorCallback) {
 
 function sendDinnerToTwitter(date, onSuccess, onError) {
   getDinner(date, function onSuccess(meals) {
-    createMessage(date, data, "akşam", false, function onSuccess(message) {
+    createMessage(date, meals, "akşam", false, function onSuccess(message) {
       twitter.post('statuses/update', { status: message }, function(err, data, response) {
         if(err){
           console.log(err);
