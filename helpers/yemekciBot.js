@@ -134,8 +134,6 @@ function listenSlackMessages() {
         if(subtype == "group_join"){
           var welcomeMessage = messageConstants.CHANNEL_WELCOME_MSG + ", " + messageConstants.FIRST_MSG;
           bot.postMessage(userId, welcomeMessage);
-          // Özelden mesaj atalım. Botumuzu tanıtan.
-          // Ayrılınca da seni özleyeceğiz filan olabilir
           /*{
             user: 'U4URYRYGH',
             inviter: 'U4VE6R3EF',
