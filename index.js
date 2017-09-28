@@ -2,26 +2,27 @@ var express = require('express');
 var app = express();
 var processor = require('./helpers/processor');
 var bot = require('./helpers/yemekciBot');
+var Sender = require('./helpers/sender');
 var constants = require('./constants/fileConstants');
 var redis = require('redis');
 var schedule = require('node-schedule');
 var dotenv = require('dotenv').config();
 
 var client = redis.createClient();
+var sender = new Sender({
+  bot
+});
 
 app.set('port', (process.env.PORT || 5000));
 
-app.use(express.static(__dirname + '/public'));
+// every day at 11.00
+schedule.scheduleJob("0 0 11 * * *", function() {
+  sender.sendLunch();
+});
 
-// views is directory for all template files
-app.set('views', __dirname + '/views');
-app.set('view engine', 'ejs');
-
-app.get('/', function(request, res) {
-  res.setHeader('Content-Type', 'application/json');
-  processor.getJSONMonthlyYemekList(function(data) {
-    res.send(data);
-  });
+// every day at 17.00
+schedule.scheduleJob("0 0 16 * * *", function() {
+  sender.sendDinner();
 });
 
 bot.listenSlackMessages();
