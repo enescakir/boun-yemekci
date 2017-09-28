@@ -7,7 +7,7 @@ processor.getJSONMonthlyYemekList(function(data) {
   data = JSON.parse(data)
   Object.keys(data).forEach(function(key,index) {
     client.set(key, JSON.stringify(data[key]));
-    console.log(key + " saved")
+    console.log(key + " saved");
   });
   client.quit();
 });

@@ -46,7 +46,11 @@ function htmlToJSON(callback) {
   getHtmlContent().then(function(htmlRawData) {
     var textRawData = htmlRawData.replace(/<\/?[^>]+(>|$)/gm, ''); // removes html tags
     var datesRegex = /\s*\d{2}\/\s*\d{2}\/\s*\d{4}/g;
-    var dates = textRawData.match(datesRegex).map(function(data) { return data.replace('\n', '')});
+    var dates = textRawData
+    .match(datesRegex)
+    .map(function(data) { 
+      return data.replace(new RegExp('\n', 'g'), '')
+    });
     var days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
     var rawDataArray = textRawData.split('\n');
     var dayFiltered = rawDataArray.filter(function(data) { return !days.includes(data); }); //days are gone

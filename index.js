@@ -25,19 +25,6 @@ app.get('/', function(request, res) {
 });
 
 bot.listenSlackMessages();
-// app.get('/:day/:month/:year/lunch', function(request, res) {
-//   var today = new Date();
-//   bot.sendLunch(today);
-//   res.send("gönderildi");
-// });
-//
-// app.get('/:day/:month/:year/dinner', function(request, res) {
-//   var today = new Date();
-//   bot.sendDinner(today);
-//   res.send("gönderildi");
-//
-// });
-
 
 app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
