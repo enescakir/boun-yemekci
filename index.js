@@ -7,11 +7,18 @@ var constants = require('./constants/fileConstants');
 var redis = require('redis');
 var schedule = require('node-schedule');
 var dotenv = require('dotenv').config();
+var Importer = require('./crons/import');
 
 var client = redis.createClient();
+
 var sender = new Sender({
   bot
 });
+
+var importer = new Importer({
+  processor,
+  client
+})
 
 app.set('port', (process.env.PORT || 5000));
 
@@ -23,6 +30,11 @@ schedule.scheduleJob("0 0 11 * * *", function() {
 // every day at 17.00
 schedule.scheduleJob("0 0 16 * * *", function() {
   sender.sendDinner();
+});
+
+// imports new foods to redis at every month's 1st day at 06.00
+schedule.scheduleJob("0 0 6 1 * *", function() {
+  importer.importToRedis();
 });
 
 bot.listenSlackMessages();
