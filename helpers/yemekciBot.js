@@ -28,8 +28,16 @@ function getYemek(date, onSuccess, onError) {
   var key = [(dd>9 ? '' : '0') + dd, (mm>9 ? '' : '0') + mm, yyyy].join('/');
   client.get(key, function(err, yemekJson) {
     if(!yemekJson) {
-      onError();
-      console.log(err);
+      var possibleKey = [(dd > 9 ? "" : "0") + dd, (mm > 9 ? "" : "0") + mm, yyyy].join("."); // fix for dot
+      client.get(possibleKey, function(err, possibleYemekJson) {
+        if (!possibleYemekJson) {
+          onError();
+          console.log(err);
+        } else {
+          yemekObject = JSON.parse(possibleYemekJson);
+          onSuccess(yemekObject);
+        }
+      });
     } else {
       yemekObject = JSON.parse(yemekJson);
       onSuccess(yemekObject);

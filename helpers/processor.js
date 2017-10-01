@@ -45,7 +45,7 @@ function getHtmlContent() {
 function htmlToJSON(callback) {
   getHtmlContent().then(function(htmlRawData) {
     var textRawData = htmlRawData.replace(/<\/?[^>]+(>|$)/gm, ''); // removes html tags
-    var datesRegex = /\s*\d{2}\/\s*\d{2}\/\s*\d{4}/g;
+    var datesRegex = /\s*\d{2}[\/|.]\s*\d{2}[\/|.]\s*\d{4}/g;
     var dates = textRawData
     .match(datesRegex)
     .map(function(data) { 
@@ -90,6 +90,10 @@ module.exports = {
   getJSONMonthlyYemekList: function(callback) {
     savePdfFile()
     .then(pdfToHtml)
+    .then(htmlToJSON(callback));
+  },
+  getJSONMonthlyYemekListFromPdf: function(callback) {
+    pdfToHtml()
     .then(htmlToJSON(callback));
   }
 }
