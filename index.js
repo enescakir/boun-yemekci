@@ -33,7 +33,7 @@ schedule.scheduleJob("0 0 16 * * *", function() {
 });
 
 // imports new foods to redis at every month's 1st day at 06.00
-schedule.scheduleJob("0 46 16 * * *", function() {
+schedule.scheduleJob("0 30 17 * * *", function() {
   importer.importToRedis();
 });
 
