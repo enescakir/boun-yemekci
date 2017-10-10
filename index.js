@@ -22,6 +22,33 @@ var importer = new Importer({
 
 app.set('port', (process.env.PORT || 5000));
 
+app.get('/:day/:month/:year', function(req, res) {
+  var dd = req.params.day;
+  var mm = req.params.month;
+  var yyyy = req.params.year;
+
+  var key = [(dd > 9 ? "" : "0") + dd, (mm > 9 ? "" : "0") + mm, yyyy].join("/");
+
+  client.get(key, function(err, yemekJson) {
+    if (!yemekJson) {
+      var possibleKey = [(dd > 9 ? "" : "0") + dd, (mm > 9 ? "" : "0") + mm, yyyy].join("."); // fix for dot
+      client.get(possibleKey, function(err, possibleYemekJson) {
+        if (!possibleYemekJson) {
+          res.status(404).json({
+            error: "Yemek bulunamadı"
+          });
+        } else {
+          yemekObject = JSON.parse(possibleYemekJson);
+          res.json(yemekObject);
+        }
+      });
+    } else {
+      yemekObject = JSON.parse(yemekJson);
+      res.json(yemekObject);
+    }
+  });
+});
+
 // every day at 11.00
 schedule.scheduleJob("0 0 11 * * *", function() {
   sender.sendLunch();
